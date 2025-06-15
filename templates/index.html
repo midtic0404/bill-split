@@ -18,6 +18,27 @@
         opacity: 1;
       }
     </style>
+    <script>
+      function refreshDropdowns() {
+        // Refresh expense form dropdown if it exists
+        const dropdown = document.getElementById("expense-form-dropdown");
+        if (dropdown) {
+          htmx.ajax("GET", "/get_people_dropdown", {
+            target: "#expense-form-dropdown",
+            swap: "outerHTML",
+          });
+        }
+
+        // Refresh person selection if it exists
+        const personSelection = document.getElementById("person-selection");
+        if (personSelection) {
+          htmx.ajax("GET", "/get_person_selection", {
+            target: "#person-selection",
+            swap: "outerHTML",
+          });
+        }
+      }
+    </script>
   </head>
   <body class="bg-gray-50 min-h-screen">
     <div class="container mx-auto px-4 py-8 max-w-4xl">
@@ -64,6 +85,8 @@
                 hx-post="/add_person"
                 hx-target="#person-list"
                 hx-swap="outerHTML"
+                hx-trigger="submit"
+                hx-on="htmx:afterRequest: refreshDropdowns()"
                 class="flex gap-2"
               >
                 <input
@@ -88,56 +111,83 @@
           </div>
 
           <!-- Expenses Tab -->
-          <div x-show="activeTab === 'expenses'" class="mt-6">
-            <div class="mb-6">
-              <h2 class="text-xl font-semibold text-gray-800 mb-4">
-                Add Expense
-              </h2>
-              <form
-                hx-post="/add_expense"
-                hx-target="#expense-list"
-                hx-swap="outerHTML"
-                class="space-y-4"
-              >
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <input
-                    type="text"
-                    name="description"
-                    placeholder="Description (e.g., Dinner)"
-                    class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                  <input
-                    type="number"
-                    name="amount"
-                    placeholder="Amount"
-                    step="0.01"
-                    min="0.01"
-                    class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                  <select
-                    name="for_person"
-                    class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  >
-                    <option value="">Who is this for?</option>
-                    {% for person in people %}
-                    <option value="{{ person.name }}">{{ person.name }}</option>
-                    {% endfor %}
-                  </select>
-                </div>
+          <div
+            x-show="activeTab === 'expenses'"
+            class="mt-6"
+            x-data="{ showClassicView: false }"
+          >
+            <!-- Toggle between views -->
+            <div class="mb-6 flex justify-center">
+              <div class="bg-gray-100 rounded-lg p-1 flex">
                 <button
-                  type="submit"
-                  class="w-full md:w-auto px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  @click="showClassicView = false"
+                  :class="{'bg-white shadow-sm': !showClassicView, 'text-gray-600': showClassicView}"
+                  class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200"
                 >
-                  Add Expense
+                  👤 Person-First
                 </button>
-              </form>
+                <button
+                  @click="showClassicView = true"
+                  :class="{'bg-white shadow-sm': showClassicView, 'text-gray-600': !showClassicView}"
+                  class="px-4 py-2 rounded-md text-sm font-medium transition-all duration-200"
+                >
+                  📝 Classic View
+                </button>
+              </div>
             </div>
 
-            <div id="expense-list">
-              {% include 'partials/expense_list.html' %}
+            <!-- Person-First View (New Redesigned) -->
+            <div x-show="!showClassicView" class="space-y-6">
+              {% include 'partials/person_selection.html' %}
+
+              <div id="person-expenses-section">
+                <!-- Person expenses will be loaded here -->
+              </div>
+            </div>
+
+            <!-- Classic View (Original) -->
+            <div x-show="showClassicView" class="space-y-6">
+              <div class="mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                  Add Expense
+                </h2>
+                <form
+                  hx-post="/add_expense"
+                  hx-target="#expense-list"
+                  hx-swap="outerHTML"
+                  class="space-y-4"
+                >
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input
+                      type="text"
+                      name="description"
+                      placeholder="Description (e.g., Dinner)"
+                      class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                    <input
+                      type="number"
+                      name="amount"
+                      placeholder="Amount"
+                      step="0.01"
+                      min="0.01"
+                      class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                    {% include 'partials/expense_form_dropdown.html' %}
+                  </div>
+                  <button
+                    type="submit"
+                    class="w-full md:w-auto px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  >
+                    Add Expense
+                  </button>
+                </form>
+              </div>
+
+              <div id="expense-list">
+                {% include 'partials/expense_list.html' %}
+              </div>
             </div>
           </div>
 

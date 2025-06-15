@@ -1,0 +1,11 @@
+<select
+  id="expense-form-dropdown"
+  name="for_person"
+  class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+  required
+>
+  <option value="">Who is this for?</option>
+  {% for person in people %}
+  <option value="{{ person.name }}">{{ person.name }}</option>
+  {% endfor %}
+</select>

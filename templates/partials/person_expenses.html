@@ -1,0 +1,104 @@
+<div class="bg-white rounded-lg border border-gray-200 p-6">
+  <div class="flex items-center justify-between mb-6">
+    <h3 class="text-xl font-semibold text-gray-800">
+      🍽️ Items for {{ selected_person }}
+    </h3>
+    <button
+      onclick="document.getElementById('person-expenses-section').innerHTML = ''"
+      class="text-gray-500 hover:text-gray-700 focus:outline-none"
+    >
+      ✕ Close
+    </button>
+  </div>
+
+  <!-- Add new item form -->
+  <div class="mb-6 bg-gray-50 rounded-lg p-4">
+    <h4 class="text-lg font-medium text-gray-800 mb-3">Add New Item</h4>
+    <form
+      hx-post="/add_person_expense"
+      hx-target="#person-expenses-section"
+      hx-swap="innerHTML"
+      class="space-y-4"
+    >
+      <input type="hidden" name="for_person" value="{{ selected_person }}" />
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input
+          type="text"
+          name="description"
+          placeholder="Item description (e.g., Burger)"
+          class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+        <input
+          type="number"
+          name="amount"
+          placeholder="Amount"
+          step="0.01"
+          min="0.01"
+          class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+      </div>
+      <button
+        type="submit"
+        class="w-full md:w-auto px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+      >
+        ➕ Add Item
+      </button>
+    </form>
+  </div>
+
+  <!-- Person's expenses list -->
+  <div>
+    <h4 class="text-lg font-medium text-gray-800 mb-3">
+      Current Items ({{ expenses|length }})
+    </h4>
+
+    {% if expenses %}
+    <div class="space-y-3 mb-4">
+      {% for expense in expenses %}
+      <div
+        class="flex items-center justify-between bg-green-50 rounded-lg p-3 border border-green-200"
+      >
+        <div class="flex-1">
+          <div class="flex items-center gap-3">
+            <span class="text-gray-800 font-medium"
+              >{{ expense.description }}</span
+            >
+            <span class="text-green-600 font-bold"
+              >${{ "%.2f"|format(expense.amount) }}</span
+            >
+          </div>
+          <div class="text-sm text-gray-600">{{ expense.date }}</div>
+        </div>
+        <button
+          hx-delete="/remove_person_expense/{{ expense.id }}/{{ selected_person }}"
+          hx-target="#person-expenses-section"
+          hx-swap="innerHTML"
+          hx-confirm="Remove this item?"
+          class="text-red-500 hover:text-red-700 focus:outline-none ml-3"
+        >
+          ✕
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+      <div class="text-center">
+        <span class="text-blue-600 font-medium"
+          >{{ selected_person }}'s Total:
+        </span>
+        <span class="text-xl font-bold text-blue-800">
+          ${{ "%.2f"|format(expenses|sum(attribute='amount')) }}
+        </span>
+      </div>
+    </div>
+    {% else %}
+    <div class="text-center py-8 text-gray-500">
+      <p class="text-lg">🍽️ No items added yet</p>
+      <p class="text-sm">Add some items for {{ selected_person }}!</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
