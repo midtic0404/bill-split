@@ -19,6 +19,37 @@
       }
     </style>
     <script>
+      // Initialize app data from server (safer approach)
+      window.appData = JSON.parse(
+        '{{ {"people": people, "expenses": expenses} | tojson | safe }}'
+      );
+
+      // localStorage management functions
+      function saveToLocalStorage() {
+        // Get current data from the server
+        fetch("/get_app_data")
+          .then((response) => response.json())
+          .then((data) => {
+            window.appData = data;
+            localStorage.setItem("billSplitterData", JSON.stringify(data));
+          })
+          .catch((error) => {
+            console.error("Error saving to localStorage:", error);
+          });
+      }
+
+      function loadFromLocalStorage() {
+        const saved = localStorage.getItem("billSplitterData");
+        if (saved) {
+          return JSON.parse(saved);
+        }
+        return { people: [], expenses: [] };
+      }
+
+      function clearLocalStorage() {
+        localStorage.removeItem("billSplitterData");
+      }
+
       function refreshDropdowns() {
         // Refresh expense form dropdown if it exists
         const dropdown = document.getElementById("expense-form-dropdown");
@@ -38,6 +69,48 @@
           });
         }
       }
+
+      // Initialize app data and set up event listeners
+      document.addEventListener("DOMContentLoaded", function () {
+        // Only load from localStorage once per session, and only on fresh page loads
+        if (
+          !sessionStorage.getItem("hasLoadedFromStorage") &&
+          !window.location.search.includes("selected_person") &&
+          window.appData.people.length === 0 &&
+          window.appData.expenses.length === 0
+        ) {
+          const savedData = loadFromLocalStorage();
+          if (savedData.people.length > 0 || savedData.expenses.length > 0) {
+            sessionStorage.setItem("hasLoadedFromStorage", "true");
+
+            // Send data to server and reload page once
+            fetch("/load_from_storage", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(savedData),
+            })
+              .then((response) => {
+                if (response.ok) {
+                  // Simple page reload to show loaded data
+                  window.location.reload();
+                }
+              })
+              .catch((error) => {
+                console.error("Error loading from localStorage:", error);
+              });
+          }
+        }
+
+        // Save to localStorage after any successful HTMX request
+        document.body.addEventListener("htmx:afterRequest", function (evt) {
+          if (evt.detail.successful) {
+            // Small delay to ensure DOM is updated
+            setTimeout(saveToLocalStorage, 100);
+          }
+        });
+      });
     </script>
   </head>
   <body class="bg-gray-50 min-h-screen">
@@ -214,12 +287,12 @@
         <div class="mt-8 text-center border-t pt-6">
           <button
             hx-post="/clear_all"
-            hx-confirm="Are you sure you want to clear all data?"
+            hx-confirm="Are you sure you want to clear all data? This will remove all people and expenses permanently."
             hx-target="body"
             hx-swap="outerHTML"
             class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
           >
-            🗑️ Clear All Data
+            🗑️ Clear All Data (Including Saved Data)
           </button>
         </div>
       </div>

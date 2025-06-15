@@ -12,6 +12,27 @@ expenses = []
 def index():
     return render_template('index.html', people=people, expenses=expenses)
 
+@app.route('/load_from_storage', methods=['POST'])
+def load_from_storage():
+    global people, expenses
+    
+    try:
+        # Get JSON data from request
+        data = request.get_json()
+        if data:
+            people = data.get('people', [])
+            expenses = data.get('expenses', [])
+    except Exception as e:
+        print(f"Error loading from storage: {e}")
+        # Keep current data if loading fails
+        pass
+    
+    return render_template('index.html', people=people, expenses=expenses)
+
+@app.route('/get_app_data', methods=['GET'])
+def get_app_data():
+    return jsonify({'people': people, 'expenses': expenses})
+
 @app.route('/add_person', methods=['POST'])
 def add_person():
     name = request.form.get('name', '').strip()
@@ -147,7 +168,14 @@ def clear_all():
     global people, expenses
     people = []
     expenses = []
-    return render_template('partials/clear_response.html')
+    # Return a response that will also clear localStorage and sessionStorage
+    return '''
+    <script>
+        localStorage.removeItem('billSplitterData');
+        sessionStorage.removeItem('hasLoadedFromStorage');
+        window.location.reload();
+    </script>
+    '''
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001) 
