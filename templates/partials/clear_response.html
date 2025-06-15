@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bill Splitter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://unpkg.com/htmx.org@1.9.6"></script>
     <script
       src="https://unpkg.com/alpinejs@3.13.1/dist/cdn.min.js"
@@ -17,65 +23,104 @@
       .htmx-request.htmx-indicator {
         opacity: 1;
       }
+      .minimal-shadow {
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03),
+          0 1px 2px -1px rgba(0, 0, 0, 0.03);
+      }
+      .nav-tab {
+        position: relative;
+        background: transparent;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 16px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        color: #64748b;
+      }
+      .nav-tab.active {
+        background: #ffffff;
+        color: #0f172a;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1),
+          0 1px 2px -1px rgba(0, 0, 0, 0.1);
+      }
+      .nav-tab:hover:not(.active) {
+        background: #f8fafc;
+        color: #475569;
+      }
     </style>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
   </head>
-  <body class="bg-gray-50 min-h-screen">
-    <div class="container mx-auto px-4 py-8 max-w-4xl">
-      <div class="bg-white rounded-lg shadow-lg p-6">
-        <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">
-          💰 Bill Splitter
+  <body
+    class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen font-sans"
+  >
+    <div class="container mx-auto px-6 py-12 max-w-5xl">
+      <div
+        class="bg-white/80 backdrop-blur-sm rounded-3xl border border-slate-200 p-12 minimal-shadow"
+      >
+        <h1 class="text-4xl font-light text-slate-800 mb-12 text-center">
+          Bill Splitter
         </h1>
 
         <!-- Navigation Tabs -->
-        <div x-data="{ activeTab: 'people' }" class="mb-6">
-          <div class="border-b border-gray-200">
-            <nav class="-mb-px flex space-x-8">
+        <div x-data="{ activeTab: 'people' }" class="mb-12">
+          <div class="bg-slate-100 rounded-2xl p-2 mb-8">
+            <nav class="flex space-x-2">
               <button
                 @click="activeTab = 'people'"
-                :class="{'border-blue-500 text-blue-600': activeTab === 'people', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'people'}"
-                class="py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap"
+                :class="{'active': activeTab === 'people'}"
+                class="nav-tab flex-1 text-center"
               >
-                👥 People
+                People
               </button>
               <button
                 @click="activeTab = 'expenses'"
-                :class="{'border-blue-500 text-blue-600': activeTab === 'expenses', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'expenses'}"
-                class="py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap"
+                :class="{'active': activeTab === 'expenses'}"
+                class="nav-tab flex-1 text-center"
               >
-                💳 Expenses
+                Expenses
               </button>
               <button
                 @click="activeTab = 'calculate'"
-                :class="{'border-blue-500 text-blue-600': activeTab === 'calculate', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'calculate'}"
-                class="py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap"
+                :class="{'active': activeTab === 'calculate'}"
+                class="nav-tab flex-1 text-center"
               >
-                🧮 Calculate
+                Calculate
               </button>
             </nav>
           </div>
 
           <!-- People Tab -->
-          <div x-show="activeTab === 'people'" class="mt-6">
-            <div class="mb-6">
-              <h2 class="text-xl font-semibold text-gray-800 mb-4">
+          <div x-show="activeTab === 'people'" class="mt-8">
+            <div class="mb-8">
+              <h2 class="text-2xl font-light text-slate-800 mb-6">
                 Add People
               </h2>
               <form
                 hx-post="/add_person"
                 hx-target="#person-list"
                 hx-swap="outerHTML"
-                class="flex gap-2"
+                class="flex gap-4"
               >
                 <input
                   type="text"
                   name="name"
                   placeholder="Enter person's name"
-                  class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="flex-1 px-4 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-slate-300 focus:border-transparent text-slate-800 placeholder-slate-400"
                   required
                 />
                 <button
                   type="submit"
-                  class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="px-6 py-3 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-colors duration-200 font-medium"
                 >
                   Add Person
                 </button>
@@ -88,9 +133,9 @@
           </div>
 
           <!-- Expenses Tab -->
-          <div x-show="activeTab === 'expenses'" class="mt-6">
-            <div class="mb-6">
-              <h2 class="text-xl font-semibold text-gray-800 mb-4">
+          <div x-show="activeTab === 'expenses'" class="mt-8">
+            <div class="mb-8">
+              <h2 class="text-2xl font-light text-slate-800 mb-6">
                 Add Expense
               </h2>
               <form
@@ -103,8 +148,8 @@
                   <input
                     type="text"
                     name="description"
-                    placeholder="Description (e.g., Dinner)"
-                    class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Description"
+                    class="px-4 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-slate-300 focus:border-transparent text-slate-800 placeholder-slate-400"
                     required
                   />
                   <input
@@ -113,12 +158,12 @@
                     placeholder="Amount"
                     step="0.01"
                     min="0.01"
-                    class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="px-4 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-slate-300 focus:border-transparent text-slate-800 placeholder-slate-400"
                     required
                   />
                   <select
                     name="for_person"
-                    class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="px-4 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-slate-300 focus:border-transparent text-slate-800"
                     required
                   >
                     <option value="">Who is this for?</option>
@@ -129,7 +174,7 @@
                 </div>
                 <button
                   type="submit"
-                  class="w-full md:w-auto px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  class="w-full px-6 py-3 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-colors duration-200 font-medium"
                 >
                   Add Expense
                 </button>
@@ -142,15 +187,15 @@
           </div>
 
           <!-- Calculate Tab -->
-          <div x-show="activeTab === 'calculate'" class="mt-6">
-            <div class="text-center mb-6">
+          <div x-show="activeTab === 'calculate'" class="mt-8">
+            <div class="text-center mb-8">
               <button
                 hx-post="/calculate_split"
                 hx-target="#split-results"
                 hx-swap="outerHTML"
-                class="px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 text-lg font-medium"
+                class="px-8 py-4 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-colors duration-200 text-lg font-medium"
               >
-                🧮 Calculate Split
+                Calculate Split
               </button>
             </div>
 
@@ -161,21 +206,42 @@
         </div>
 
         <!-- Clear All Button -->
-        <div class="mt-8 text-center border-t pt-6">
+        <div class="mt-12 text-center border-t border-slate-200 pt-8">
           <button
             hx-post="/clear_all"
             hx-confirm="Are you sure you want to clear all data?"
             hx-target="body"
             hx-swap="outerHTML"
-            class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+            class="px-6 py-3 bg-slate-800 text-white rounded-2xl hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-colors duration-200 font-medium"
           >
-            🗑️ Clear All Data
+            Clear All Data
           </button>
         </div>
 
         <!-- Success Message -->
-        <div class="mt-4 text-center text-green-600 font-medium">
-          ✅ All data cleared successfully!
+        <div
+          class="mt-6 text-center bg-slate-100 rounded-2xl p-6 border border-slate-200"
+        >
+          <div
+            class="w-12 h-12 mx-auto mb-3 bg-slate-200 rounded-full flex items-center justify-center"
+          >
+            <svg
+              class="w-6 h-6 text-slate-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              ></path>
+            </svg>
+          </div>
+          <p class="text-slate-700 font-medium">
+            All data cleared successfully!
+          </p>
         </div>
       </div>
     </div>
@@ -183,7 +249,7 @@
     <!-- Loading indicator -->
     <div
       id="loading"
-      class="htmx-indicator fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-md shadow-lg"
+      class="htmx-indicator fixed top-6 right-6 bg-slate-900 text-white px-4 py-2 rounded-2xl shadow-lg"
     >
       Loading...
     </div>

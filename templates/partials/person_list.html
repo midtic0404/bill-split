@@ -1,32 +1,68 @@
 <div id="person-list">
-  <h3 class="text-lg font-medium text-gray-800 mb-3">
-    People ({{ people|length }})
-  </h3>
-
   {% if people %}
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+  <div class="text-center mb-6">
+    <h3 class="text-lg font-medium text-slate-700">
+      {{ people|length }} {{ 'person' if people|length == 1 else 'people' }}
+      added
+    </h3>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
     {% for person in people %}
     <div
-      class="flex items-center justify-between bg-blue-50 rounded-lg p-3 border border-blue-200"
+      class="bg-white rounded-2xl p-4 minimal-shadow hover-lift border border-slate-100"
     >
-      <span class="text-gray-800 font-medium">👤 {{ person.name }}</span>
-      <button
-        hx-delete="/remove_person/{{ person.id }}"
-        hx-target="#person-list"
-        hx-swap="outerHTML"
-        hx-confirm="Remove {{ person.name }}?"
-        hx-on="htmx:afterRequest: refreshDropdowns()"
-        class="text-red-500 hover:text-red-700 focus:outline-none"
-      >
-        ✕
-      </button>
+      <div class="flex items-center justify-between">
+        <span class="text-slate-800 font-medium">{{ person.name }}</span>
+        <button
+          hx-delete="/remove_person/{{ person.id }}"
+          hx-target="#person-list"
+          hx-swap="outerHTML"
+          hx-confirm="Remove {{ person.name }}?"
+          hx-on="htmx:afterRequest: refreshDropdowns()"
+          class="text-slate-400 hover:text-red-500 focus:outline-none transition-colors duration-200 p-1"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
+          </svg>
+        </button>
+      </div>
     </div>
     {% endfor %}
   </div>
   {% else %}
-  <div class="text-center py-8 text-gray-500">
-    <p class="text-lg">👥 No people added yet</p>
-    <p class="text-sm">Add some people to start splitting bills!</p>
+  <div class="text-center py-12">
+    <div
+      class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4"
+    >
+      <svg
+        class="w-8 h-8 text-slate-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m9 5.197v1M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+        ></path>
+      </svg>
+    </div>
+    <p class="text-slate-600 font-medium mb-1">No people added yet</p>
+    <p class="text-slate-400 text-sm">
+      Add some people to start splitting bills
+    </p>
   </div>
   {% endif %}
 </div>
