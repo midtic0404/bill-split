@@ -1,0 +1,31 @@
+<div id="person-list">
+  <h3 class="text-lg font-medium text-gray-800 mb-3">
+    People ({{ people|length }})
+  </h3>
+
+  {% if people %}
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+    {% for person in people %}
+    <div
+      class="flex items-center justify-between bg-blue-50 rounded-lg p-3 border border-blue-200"
+    >
+      <span class="text-gray-800 font-medium">👤 {{ person.name }}</span>
+      <button
+        hx-delete="/remove_person/{{ person.id }}"
+        hx-target="#person-list"
+        hx-swap="outerHTML"
+        hx-confirm="Remove {{ person.name }}?"
+        class="text-red-500 hover:text-red-700 focus:outline-none"
+      >
+        ✕
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-8 text-gray-500">
+    <p class="text-lg">👥 No people added yet</p>
+    <p class="text-sm">Add some people to start splitting bills!</p>
+  </div>
+  {% endif %}
+</div>
